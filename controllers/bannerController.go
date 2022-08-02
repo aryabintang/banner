@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"golang_cms/configs"
 	"golang_cms/models"
 	"net/http"
@@ -14,7 +15,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var bannerCollection *mongo.Collection = configs.GetCollection(configs.DB, "testing")
+var bannerCollection *mongo.Collection = configs.GetCollection(configs.DB, "Banner")
 var validate = validator.New()
 
 func CreateBanner(c *gin.Context) {
@@ -26,7 +27,7 @@ func CreateBanner(c *gin.Context) {
 	if err := c.Bind(&banner); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Status":  400,
-			"Message": err,
+			"Message": err.Error(),
 		})
 		return
 	}
@@ -35,19 +36,14 @@ func CreateBanner(c *gin.Context) {
 	if validationErr := validate.Struct(&banner); validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Status":  400,
-			"Message": validationErr,
+			"Message": validationErr.Error(),
 		})
 		return
 	}
 
-	newBanner := models.Banner{
-		Id:     primitive.NewObjectID(),
-		Banner: banner.Banner,
-		Alt:    banner.Alt,
-		Link:   banner.Link,
-	}
-
-	result, err := bannerCollection.InsertOne(ctx, newBanner)
+	now := time.Now()
+	banner.Id = now.UnixNano()
+	result, err := bannerCollection.InsertOne(ctx, banner)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Status":  500,
@@ -68,20 +64,19 @@ func GetABanner(c *gin.Context) {
 	bannerId := c.Param("bannerId")
 	var banner models.Banner
 	defer cancel()
-
-	objId, _ := primitive.ObjectIDFromHex(bannerId)
-
-	err := bannerCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&banner)
+	fmt.Println(bannerId)
+	err := bannerCollection.FindOne(ctx, bson.M{"id": bannerId[0]}).Decode(&banner)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Status":  500,
-			"Message": "Internal Server Error",
+			"Message": err.Error(),
 		})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"Data anda": &banner,
+		"Status": 200,
+		"Data":   banner,
 	})
 }
 
@@ -128,7 +123,7 @@ func EditABanner(c *gin.Context) {
 
 	//get updated Banner details
 	var updatedBanner models.Banner
-	if result.MatchedCount == 1 {
+	if result.MatchedCount == 0 {
 		err := bannerCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&banner)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -189,7 +184,7 @@ func GetAllBanner(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Status":  500,
-			"Message": err,
+			"Message": err.Error(),
 		})
 		return
 	}
@@ -201,7 +196,7 @@ func GetAllBanner(c *gin.Context) {
 		if err = results.Decode(&singleBanner); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"Status":  500,
-				"Message": err,
+				"Message": err.Error(),
 			})
 			return
 		}
