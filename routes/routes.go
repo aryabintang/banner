@@ -28,6 +28,6 @@ func BannerRoute() *gin.Engine {
 	r.PUT("/banner/:bannerId", controllers.EditABanner)
 	r.DELETE("/banner/:bannerId", controllers.DeleteBanner)
 	r.GET("/banners", controllers.GetAllBanner)
-	r.Run(":9999")
+	r.Run(":8888")
 	return r
 }
