@@ -11,13 +11,14 @@ WORKDIR /build
 
 COPY go.mod .
 COPY go.sum .
+COPY . .
 RUN go mod download
 
 
 COPY . .
 
 
-RUN go build -o /golang_cms.
+RUN go build -o golang_cms
 
 
 WORKDIR /dist
@@ -26,7 +27,7 @@ WORKDIR /dist
 RUN cp /build/main .
 COPY .env /dist
 
-EXPOSE 8787
+EXPOSE 27017
 
 
-CMD ["golang_cms"]
+CMD ./golang_cms

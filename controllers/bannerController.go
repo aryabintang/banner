@@ -62,9 +62,9 @@ func CreateBanner(c *gin.Context) {
 func GetABanner(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	bannerId := c.Param("bannerId")
-
 	var banner models.Banner
 	defer cancel()
+
 	fmt.Println(bannerId)
 	i, _ := strconv.Atoi(bannerId)
 
