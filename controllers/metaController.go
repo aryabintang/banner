@@ -108,7 +108,7 @@ func EditAmeta(c *gin.Context) {
 		})
 	}
 
-	update := bson.M{"Title": meta.Title, "descripsi": meta.Descrpsi, "Kategori Produk": meta.Kategori_produk}
+	update := bson.M{"Title": meta.Title, "descripsi": meta.Descrpsi, "Kategori": meta.Kategori}
 
 	result, err := metaCollection.UpdateOne(ctx, bson.M{"id": i}, bson.M{"$set": update})
 
@@ -137,7 +137,7 @@ func EditAmeta(c *gin.Context) {
 	})
 }
 
-func Deletemeta(c gin.Context) gin.HandlerFunc {
+func Deletemeta(c *gin.Context) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	metaId := c.Param("metaId")
@@ -168,7 +168,6 @@ func Deletemeta(c gin.Context) gin.HandlerFunc {
 		"Message": "Data Berhasil Di Hapus",
 	})
 
-	return Deletemeta(gin.Context{})
 }
 
 func GetAllmeta(c *gin.Context) {

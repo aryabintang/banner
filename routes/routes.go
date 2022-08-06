@@ -26,9 +26,14 @@ func BannerRoute() *gin.Engine {
 	r.POST("/banner", controllers.CreateBanner)
 	r.GET("/banner/:bannerId", controllers.GetABanner)
 	r.PUT("/banner/:bannerId", controllers.EditABanner)
-	r.DELETE("/banner/:bannerId", controllers.DeleteBanner(gin.Context{}))
+	r.DELETE("/banner/:bannerId", controllers.DeleteBanner)
 	r.GET("/banners", controllers.GetAllBanner)
 	//meyta
+	r.POST("/meta", controllers.Createmeta)
+	r.GET("/meta/:metaId", controllers.GetAmeta)
+	r.PUT("/meta/:metaId", controllers.EditAmeta)
+	r.DELETE("/meta/:metaId", controllers.Deletemeta)
+	r.GET("/metas", controllers.GetAllmeta)
 	r.Run(":8888")
 	return r
 }

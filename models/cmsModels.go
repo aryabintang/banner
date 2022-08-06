@@ -8,8 +8,8 @@ type Banner struct {
 }
 
 type Meta struct {
-	Id              int    `json:"id,omitempty"`
-	Title           string `json:"tile,omitempty" validate:"required"`
-	Descrpsi        string `json:"descrpsi,omitempty" validate:"required"`
-	Kategori_produk string `json:"kategori_produk,omitempty" validate:"required"`
+	Id       int    `json:"id,omitempty"`
+	Title    string `json:"title,omitempty" valid:"required"`
+	Descrpsi string `json:"descrpsi,omitempty" val:"required"`
+	Kategori string `json:"kategori,omitempty" val:"required"`
 }

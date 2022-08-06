@@ -137,7 +137,7 @@ func EditABanner(c *gin.Context) {
 	})
 }
 
-func DeleteBanner(c gin.Context) gin.HandlerFunc {
+func DeleteBanner(c *gin.Context) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	bannerId := c.Param("bannerId")
@@ -168,7 +168,6 @@ func DeleteBanner(c gin.Context) gin.HandlerFunc {
 		"Message": "Data Berhasil Di Hapus",
 	})
 
-	return DeleteBanner(gin.Context{})
 }
 
 func GetAllBanner(c *gin.Context) {
