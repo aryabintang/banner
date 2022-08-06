@@ -40,6 +40,13 @@ func Createmeta(c *gin.Context) {
 		})
 		return
 	}
+	//set cooky
+	cookie, err := c.Cookie("gin_cookie_creat")
+	if err != nil {
+		cookie = "NotSet"
+		c.SetCookie("gin_cookie", "test", 3600, "/", " localhost", false, true)
+	}
+	fmt.Printf("Cookie value: %s \n", cookie)
 
 	now := time.Now()
 	meta.Id = int(now.UnixNano())
@@ -81,6 +88,14 @@ func GetAmeta(c *gin.Context) {
 
 		"Data": meta,
 	})
+
+	//set cooky
+	cookie, err := c.Cookie("getbyID")
+	if err != nil {
+		cookie = "Set"
+		c.SetCookie("all_meta", "get", 201, "/", " localhost", false, true)
+	}
+	fmt.Printf("Cookie value: %s \n", cookie)
 }
 
 func EditAmeta(c *gin.Context) {
@@ -108,6 +123,15 @@ func EditAmeta(c *gin.Context) {
 		})
 	}
 
+	//set cooky
+	cookie, err := c.Cookie("gin_cookie")
+	if err != nil {
+		cookie = "NotSet"
+		c.SetCookie("gin_cookie", "test", 3600, "/", " localhost", false, true)
+	}
+	fmt.Printf("Cookie value: %s \n", cookie)
+
+	// update func
 	update := bson.M{"Title": meta.Title, "descripsi": meta.Descrpsi, "Kategori": meta.Kategori}
 
 	result, err := metaCollection.UpdateOne(ctx, bson.M{"id": i}, bson.M{"$set": update})
@@ -184,6 +208,14 @@ func GetAllmeta(c *gin.Context) {
 		})
 		return
 	}
+
+	//set cooky
+	cookie, err := c.Cookie("meta")
+	if err != nil {
+		cookie = "Set"
+		c.SetCookie("all_meta", "get", 201, "/", " localhost", false, true)
+	}
+	fmt.Printf("Cookie value: %s \n", cookie)
 
 	//reading from the db in an optimal way
 	defer results.Close(ctx)

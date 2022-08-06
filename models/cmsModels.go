@@ -13,3 +13,19 @@ type Meta struct {
 	Descrpsi string `json:"descrpsi,omitempty" val:"required"`
 	Kategori string `json:"kategori,omitempty" val:"required"`
 }
+
+type User struct {
+	Email    string `json:"email,,omitempty" validasi:"required"`
+	Password string `json:"password,,omitempty" validasi:"required"`
+}
+
+type Authentication struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type Token struct {
+	Role        string `json:"role"`
+	Email       string `json:"email"`
+	TokenString string `json:"token"`
+}

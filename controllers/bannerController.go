@@ -18,6 +18,7 @@ import (
 var bannerCollection *mongo.Collection = configs.GetCollection(configs.DB, "test")
 var validate = validator.New()
 
+// conttroler banner
 func CreateBanner(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	var banner models.Banner
@@ -31,16 +32,14 @@ func CreateBanner(c *gin.Context) {
 		})
 		return
 	}
-
 	//use the validator library to validate required fields
 	if validationErr := validate.Struct(&banner); validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Status":  400,
 			"Message": validationErr.Error(),
 		})
-		return
 	}
-
+	//membuat data banner baru
 	now := time.Now()
 	banner.Id = int(now.UnixNano())
 	result, err := bannerCollection.InsertOne(ctx, banner)
@@ -51,7 +50,6 @@ func CreateBanner(c *gin.Context) {
 		})
 		return
 	}
-
 	c.JSON(http.StatusCreated, gin.H{
 		"Data":    result,
 		"Status":  200,
@@ -59,13 +57,14 @@ func CreateBanner(c *gin.Context) {
 	})
 }
 
+//mengambil satu data banner dengan filter by ID
 func GetABanner(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	bannerId := c.Param("bannerId")
 	var banner models.Banner
 	defer cancel()
 
-	fmt.Println(bannerId)
+	//merubah data id dari string menjadi Integer
 	i, _ := strconv.Atoi(bannerId)
 
 	err := bannerCollection.FindOne(ctx, bson.M{"id": i}).Decode(&banner)
@@ -76,13 +75,12 @@ func GetABanner(c *gin.Context) {
 		})
 		return
 	}
-
 	c.JSON(http.StatusOK, gin.H{
-
 		"Data": banner,
 	})
 }
 
+//mengubah data banner dengan filter by ID
 func EditABanner(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	bannerId := c.Param("bannerId")
@@ -92,7 +90,7 @@ func EditABanner(c *gin.Context) {
 	fmt.Println(bannerId)
 	i, _ := strconv.Atoi(bannerId)
 
-	//validate the request body
+	//validasi request body
 	if err := c.Bind(&banner); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Status":  500,
@@ -100,7 +98,7 @@ func EditABanner(c *gin.Context) {
 		})
 	}
 
-	//use the validator library to validate required fields
+	//menggunakan validasi untuk digunakan validasi required
 	if validationErr := validate.Struct(&banner); validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Status":  500,
@@ -118,7 +116,7 @@ func EditABanner(c *gin.Context) {
 			"Message": err.Error(),
 		})
 	}
-	//get updated user details
+	//mengambil data yang sudah diubah
 	var updatedUser models.Banner
 	if result.MatchedCount == 1 {
 		err := bannerCollection.FindOne(ctx, bson.M{"id": i}).Decode(&updatedUser)
@@ -137,10 +135,11 @@ func EditABanner(c *gin.Context) {
 	})
 }
 
+//menghapus data banner
 func DeleteBanner(c *gin.Context) {
-
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	bannerId := c.Param("bannerId")
+	//menghentikan defer
 	defer cancel()
 	fmt.Println(bannerId)
 	i, _ := strconv.Atoi(bannerId)
@@ -154,7 +153,6 @@ func DeleteBanner(c *gin.Context) {
 		})
 
 	}
-
 	if result.DeletedCount < 1 {
 		c.JSON(http.StatusNotFound, gin.H{
 			"Status":  404,
@@ -162,7 +160,6 @@ func DeleteBanner(c *gin.Context) {
 		})
 
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"Status":  200,
 		"Message": "Data Berhasil Di Hapus",
@@ -170,6 +167,7 @@ func DeleteBanner(c *gin.Context) {
 
 }
 
+// mengambil seluruh data banner
 func GetAllBanner(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	var banner []models.Banner
@@ -184,7 +182,6 @@ func GetAllBanner(c *gin.Context) {
 		})
 		return
 	}
-
 	//reading from the db in an optimal way
 	defer results.Close(ctx)
 	for results.Next(ctx) {
@@ -196,14 +193,13 @@ func GetAllBanner(c *gin.Context) {
 			})
 			return
 		}
-
 		banner = append(banner, singleBanner)
 	}
-
 	c.JSON(http.StatusOK, gin.H{
 		"Data":    banner,
 		"Status":  200,
 		"Message": "success",
 	})
-
 }
+
+// akhir controller banner
