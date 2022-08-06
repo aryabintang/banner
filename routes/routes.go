@@ -22,12 +22,13 @@ func BannerRoute() *gin.Engine {
 		},
 		MaxAge: 12 * time.Hour,
 	}))
-
+	//banner
 	r.POST("/banner", controllers.CreateBanner)
 	r.GET("/banner/:bannerId", controllers.GetABanner)
 	r.PUT("/banner/:bannerId", controllers.EditABanner)
-	r.DELETE("/banner/:bannerId", controllers.DeleteBanner)
+	r.DELETE("/banner/:bannerId", controllers.DeleteBanner(gin.Context{}))
 	r.GET("/banners", controllers.GetAllBanner)
+	//meyta
 	r.Run(":8888")
 	return r
 }

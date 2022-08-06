@@ -15,16 +15,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var bannerCollection *mongo.Collection = configs.GetCollection(configs.DB, "test")
-var validate = validator.New()
+var metaCollection *mongo.Collection = configs.GetCollection(configs.DB, "Meta")
+var val = validator.New()
 
-func CreateBanner(c *gin.Context) {
+func Createmeta(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	var banner models.Banner
+	var meta models.Meta
 	defer cancel()
 
-	//validate the request body
-	if err := c.Bind(&banner); err != nil {
+	//val the request body
+	if err := c.Bind(&meta); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Status":  400,
 			"Message": err.Error(),
@@ -32,8 +32,8 @@ func CreateBanner(c *gin.Context) {
 		return
 	}
 
-	//use the validator library to validate required fields
-	if validationErr := validate.Struct(&banner); validationErr != nil {
+	//use the validator library to val required fields
+	if validationErr := val.Struct(&meta); validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Status":  400,
 			"Message": validationErr.Error(),
@@ -42,8 +42,8 @@ func CreateBanner(c *gin.Context) {
 	}
 
 	now := time.Now()
-	banner.Id = int(now.UnixNano())
-	result, err := bannerCollection.InsertOne(ctx, banner)
+	meta.Id = int(now.UnixNano())
+	result, err := metaCollection.InsertOne(ctx, meta)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Status":  500,
@@ -59,16 +59,16 @@ func CreateBanner(c *gin.Context) {
 	})
 }
 
-func GetABanner(c *gin.Context) {
+func GetAmeta(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	bannerId := c.Param("bannerId")
-	var banner models.Banner
+	metaId := c.Param("metaId")
+	var meta models.Meta
 	defer cancel()
 
-	fmt.Println(bannerId)
-	i, _ := strconv.Atoi(bannerId)
+	fmt.Println(metaId)
+	i, _ := strconv.Atoi(metaId)
 
-	err := bannerCollection.FindOne(ctx, bson.M{"id": i}).Decode(&banner)
+	err := metaCollection.FindOne(ctx, bson.M{"id": i}).Decode(&meta)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"Status":  500,
@@ -79,38 +79,38 @@ func GetABanner(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 
-		"Data": banner,
+		"Data": meta,
 	})
 }
 
-func EditABanner(c *gin.Context) {
+func EditAmeta(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	bannerId := c.Param("bannerId")
-	var banner models.Banner
+	metaId := c.Param("metaId")
+	var meta models.Meta
 	defer cancel()
 
-	fmt.Println(bannerId)
-	i, _ := strconv.Atoi(bannerId)
+	fmt.Println(metaId)
+	i, _ := strconv.Atoi(metaId)
 
-	//validate the request body
-	if err := c.Bind(&banner); err != nil {
+	//val the request body
+	if err := c.Bind(&meta); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Status":  500,
 			"Message": err.Error(),
 		})
 	}
 
-	//use the validator library to validate required fields
-	if validationErr := validate.Struct(&banner); validationErr != nil {
+	//use the validator library to val required fields
+	if validationErr := val.Struct(&meta); validationErr != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"Status":  500,
 			"Message": validationErr.Error(),
 		})
 	}
 
-	update := bson.M{"banner": banner.Banner, "alt": banner.Alt, "link": banner.Link}
+	update := bson.M{"Title": meta.Title, "descripsi": meta.Descrpsi, "Kategori Produk": meta.Kategori_produk}
 
-	result, err := bannerCollection.UpdateOne(ctx, bson.M{"id": i}, bson.M{"$set": update})
+	result, err := metaCollection.UpdateOne(ctx, bson.M{"id": i}, bson.M{"$set": update})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -119,9 +119,9 @@ func EditABanner(c *gin.Context) {
 		})
 	}
 	//get updated user details
-	var updatedUser models.Banner
+	var updatedUser models.Meta
 	if result.MatchedCount == 1 {
-		err := bannerCollection.FindOne(ctx, bson.M{"id": i}).Decode(&updatedUser)
+		err := metaCollection.FindOne(ctx, bson.M{"id": i}).Decode(&updatedUser)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -137,15 +137,15 @@ func EditABanner(c *gin.Context) {
 	})
 }
 
-func DeleteBanner(c gin.Context) gin.HandlerFunc {
+func Deletemeta(c gin.Context) gin.HandlerFunc {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	bannerId := c.Param("bannerId")
+	metaId := c.Param("metaId")
 	defer cancel()
-	fmt.Println(bannerId)
-	i, _ := strconv.Atoi(bannerId)
+	fmt.Println(metaId)
+	i, _ := strconv.Atoi(metaId)
 
-	result, err := bannerCollection.DeleteOne(ctx, bson.M{"id": i})
+	result, err := metaCollection.DeleteOne(ctx, bson.M{"id": i})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -168,15 +168,15 @@ func DeleteBanner(c gin.Context) gin.HandlerFunc {
 		"Message": "Data Berhasil Di Hapus",
 	})
 
-	return DeleteBanner(gin.Context{})
+	return Deletemeta(gin.Context{})
 }
 
-func GetAllBanner(c *gin.Context) {
+func GetAllmeta(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	var banner []models.Banner
+	var meta []models.Meta
 	defer cancel()
 
-	results, err := bannerCollection.Find(ctx, bson.M{})
+	results, err := metaCollection.Find(ctx, bson.M{})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -189,8 +189,8 @@ func GetAllBanner(c *gin.Context) {
 	//reading from the db in an optimal way
 	defer results.Close(ctx)
 	for results.Next(ctx) {
-		var singleBanner models.Banner
-		if err = results.Decode(&singleBanner); err != nil {
+		var singlemeta models.Meta
+		if err = results.Decode(&singlemeta); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"Status":  500,
 				"Message": err.Error(),
@@ -198,11 +198,11 @@ func GetAllBanner(c *gin.Context) {
 			return
 		}
 
-		banner = append(banner, singleBanner)
+		meta = append(meta, singlemeta)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"Data":    banner,
+		"Data":    meta,
 		"Status":  200,
 		"Message": "success",
 	})
