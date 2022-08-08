@@ -1,5 +1,12 @@
 package models
 
+import (
+	"golang_cms/configs"
+
+	"github.com/golang-jwt/jwt"
+	"github.com/goonode/mogo"
+)
+
 type Banner struct {
 	Id     int    `json:"id,omitempty"`
 	Banner string `json:"banner,omitempty" validate:"required"`
@@ -15,17 +22,42 @@ type Meta struct {
 }
 
 type User struct {
-	Email    string `json:"email,,omitempty" validasi:"required"`
-	Password string `json:"password,,omitempty" validasi:"required"`
+	Id       int    `json:"id,omitempty"`
+	Fname    string `json:"fname,omitempty" validasi:"required"`
+	Lname    string `json:"lname,omitempty" validasi:"required"`
+	Email    string `json:"email,omitempty" validasi:"required"`
+	Password string `json:"password,omitempty" validasi:"required"`
 }
 
-type Authentication struct {
+type Login struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-type Token struct {
-	Role        string `json:"role"`
-	Email       string `json:"email"`
-	TokenString string `json:"token"`
+type ReqBody struct {
+	Email    string `binding:"required,email"`
+	Password string `binding:"required,gte=6"`
+}
+
+type ResBody struct {
+	Token string `json:"token"`
+}
+
+type Claims struct {
+	Email string `json:"email"`
+	*jwt.StandardClaims
+}
+
+//GetJwtToken returns jwt token with user email claims
+func (user *User) GetJwtToken() (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"email": string(user.Email),
+	})
+	secretKey := configs.EnvMongoURI("TOKEN_KEY", "")
+	tokenString, err := token.SignedString([]byte(secretKey))
+	return tokenString, err
+}
+
+func init() {
+	mogo.ModelRegistry.Register(User{})
 }

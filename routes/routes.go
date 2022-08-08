@@ -23,7 +23,7 @@ func BannerRoute() *gin.Engine {
 		MaxAge: 12 * time.Hour,
 	}))
 	//login user & generate token
-	r.POST("auth/")
+	r.POST("/signup", controllers.UsersignUp)
 	r.GET("/login")
 	//banner
 	r.POST("/banner", controllers.CreateBanner)

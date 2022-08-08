@@ -40,13 +40,6 @@ func Createmeta(c *gin.Context) {
 		})
 		return
 	}
-	//set cooky
-	cookie, err := c.Cookie("gin_cookie_creat")
-	if err != nil {
-		cookie = "NotSet"
-		c.SetCookie("gin_cookie", "test", 3600, "/", " localhost", false, true)
-	}
-	fmt.Printf("Cookie value: %s \n", cookie)
 
 	now := time.Now()
 	meta.Id = int(now.UnixNano())
