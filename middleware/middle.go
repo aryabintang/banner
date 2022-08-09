@@ -1,20 +1,19 @@
-package routes
+package middleware
 
 import (
-	"golang_cms/controllers"
 	"golang_cms/models"
 	"log"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 var identityKey = "id"
 
-func BannerRoute() *gin.Engine {
+func Auth() {
 
+	// the jwt middleware
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
 		Key:         []byte("secret key"),
@@ -96,42 +95,4 @@ func BannerRoute() *gin.Engine {
 	if errInit != nil {
 		log.Fatal("authMiddleware.MiddlewareInit() Error:" + errInit.Error())
 	}
-
-	r := gin.Default()
-
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "OPTIONS", "DELETE"},
-		AllowHeaders:     []string{"*"},
-		ExposeHeaders:    []string{"*"},
-		AllowCredentials: false,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "*"
-		},
-		MaxAge: 12 * time.Hour,
-	}))
-
-	r.POST("/login", authMiddleware.LoginHandler)
-
-	auth := r.Group("/auth")
-	// Refresh time can be longer than token timeout
-	auth.GET("/refresh_token", authMiddleware.RefreshHandler)
-	auth.Use(authMiddleware.MiddlewareFunc())
-	{
-		//banner
-		auth.POST("/banner", controllers.CreateBanner)
-		auth.GET("/banner/:bannerId", controllers.GetABanner)
-		auth.PUT("/banner/:bannerId", controllers.EditABanner)
-		auth.DELETE("/banner/:bannerId", controllers.DeleteBanner)
-		auth.GET("/banners", controllers.GetAllBanner)
-		//meta
-		auth.POST("/meta", controllers.Createmeta)
-		auth.GET("/meta/:metaId", controllers.GetAmeta)
-		auth.PUT("/meta/:metaId", controllers.EditAmeta)
-		auth.DELETE("/meta/:metaId", controllers.Deletemeta)
-		auth.GET("/metas", controllers.GetAllmeta)
-	}
-
-	r.Run(":8888")
-	return r
 }
